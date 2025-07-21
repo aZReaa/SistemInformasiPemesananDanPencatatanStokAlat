@@ -1,0 +1,10 @@
+# Simple .htaccess for debugging
+Options -Indexes
+
+# Enable rewrite engine
+RewriteEngine On
+
+# Redirect everything to public folder
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d     
+RewriteRule ^(.*)$ public/$1 [L,QSA]
