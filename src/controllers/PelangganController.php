@@ -37,6 +37,8 @@ class PelangganController
         $search = $_GET['search'] ?? '';
         $kategori = $_GET['kategori'] ?? '';
         
+        $db = Database::getInstance();
+        
         if (!empty($search)) {
             $alatList = $this->alat->searchAlat($search);
         } elseif (!empty($kategori)) {
@@ -45,8 +47,13 @@ class PelangganController
             $alatList = $this->alat->getAvailable();
         }
 
-        $db = Database::getInstance();
-        $kategoriList = $db->fetchAll("SELECT DISTINCT kategori FROM alat WHERE stok > 0");
+        // Get available categories with proper JOIN
+        $kategoriList = $db->fetchAll("
+            SELECT DISTINCT k.id_kategori, k.nama_kategori as kategori 
+            FROM kategori_layanan k 
+            JOIN alat a ON k.id_kategori = a.id_kategori 
+            WHERE a.stok > 0
+        ");
         
         require_once __DIR__ . '/../../templates/pages/pelanggan/katalog.php';
     }

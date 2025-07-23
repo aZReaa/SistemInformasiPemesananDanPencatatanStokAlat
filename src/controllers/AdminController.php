@@ -560,7 +560,7 @@ class AdminController
 
     public function pengembalian()
     {
-        $pengembalianList = $this->admin->kelolaPengembalian();
+        $pengembalianList = $this->pengembalian->getAll();
         require_once __DIR__ . '/../../templates/pages/admin/pengembalian.php';
     }
 
@@ -577,8 +577,9 @@ class AdminController
 
             if ($data['id_transaksi']) {
                 try {
-                    $this->admin->catatPengembalian($data);
-                    $_SESSION['success'] = 'Pengembalian berhasil dicatat';
+                    // Use Pengembalian model instead of Admin model to properly restore stock
+                    $this->pengembalian->insert($data);
+                    $_SESSION['success'] = 'Pengembalian berhasil dicatat dan stok telah dikembalikan';
                 } catch (Exception $e) {
                     $_SESSION['error'] = 'Gagal mencatat pengembalian: ' . $e->getMessage();
                 }

@@ -37,7 +37,7 @@ include __DIR__ . '/../../layouts/header.php';
                         <div style="height: 200px; background: linear-gradient(135deg, var(--light-color), #e3f2fd); 
                                     display: flex; align-items: center; justify-content: center; border-radius: 0.375rem; margin-bottom: 1rem;">
                             <?php if ($alat['gambar']): ?>
-                                <img src="/hakikah/public/images/alat/<?= htmlspecialchars($alat['gambar']) ?>" 
+                                <img src="/hakikah/public/uploads/alat/<?= htmlspecialchars($alat['gambar']) ?>" 
                                      alt="<?= htmlspecialchars($alat['nama_alat']) ?>"
                                      style="max-width: 100%; max-height: 100%; object-fit: cover; border-radius: 0.375rem;">
                             <?php else: ?>

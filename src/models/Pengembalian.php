@@ -18,6 +18,31 @@ class Pengembalian
         try {
             $this->db->getConnection()->beginTransaction();
 
+            // Check if this transaction has already been returned
+            $existingReturn = $this->db->fetch(
+                "SELECT id_pengembalian FROM pengembalian WHERE id_transaksi = ?",
+                [$data['id_transaksi']]
+            );
+
+            if ($existingReturn) {
+                throw new Exception("Transaksi ini sudah pernah dicatat pengembaliannya");
+            }
+
+            // Get transaction details first to validate
+            $transaksi = $this->db->fetch(
+                "SELECT * FROM transaksi WHERE id_transaksi = ?",
+                [$data['id_transaksi']]
+            );
+
+            if (!$transaksi) {
+                throw new Exception("Transaksi tidak ditemukan");
+            }
+
+            // Only allow return for ongoing transactions
+            if (!in_array($transaksi['status'], ['ongoing', 'approved', 'aktif'])) {
+                throw new Exception("Hanya transaksi yang sedang berlangsung yang bisa dikembalikan. Status saat ini: " . $transaksi['status']);
+            }
+
             $sql = "INSERT INTO pengembalian (id_transaksi, tanggal, kondisi_alat, catatan, denda) 
                     VALUES (?, ?, ?, ?, ?)";
             
@@ -29,27 +54,29 @@ class Pengembalian
                 $data['denda'] ?? 0
             ]);
 
+            // Update transaction status to completed
             $this->db->update(
                 "UPDATE transaksi SET status = 'completed' WHERE id_transaksi = ?",
                 [$data['id_transaksi']]
             );
 
-            $transaksi = $this->db->fetch(
-                "SELECT * FROM transaksi WHERE id_transaksi = ?",
-                [$data['id_transaksi']]
-            );
-
-            if ($transaksi && $data['kondisi_alat'] === 'baik') {
+            // Restore stock based on condition
+            if ($data['kondisi_alat'] === 'baik') {
+                // Return all items if in good condition
                 $this->db->update(
                     "UPDATE alat SET stok = stok + ? WHERE id_alat = ?",
                     [$transaksi['jumlah_alat'], $transaksi['id_alat']]
                 );
-            } elseif ($transaksi && $data['kondisi_alat'] === 'rusak') {
+            } elseif ($data['kondisi_alat'] === 'rusak') {
+                // Return partial items if some are damaged
                 $stokKembali = max(0, $transaksi['jumlah_alat'] - ($data['rusak_count'] ?? 0));
                 $this->db->update(
                     "UPDATE alat SET stok = stok + ? WHERE id_alat = ?",
                     [$stokKembali, $transaksi['id_alat']]
                 );
+            } elseif ($data['kondisi_alat'] === 'hilang') {
+                // Don't return any stock if items are lost
+                // No stock update needed
             }
 
             $this->db->getConnection()->commit();

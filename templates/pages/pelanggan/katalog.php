@@ -39,8 +39,8 @@ include __DIR__ . '/../../layouts/header.php';
                         <select id="kategori" name="kategori" class="form-control">
                             <option value="">Semua Kategori</option>
                             <?php foreach ($kategoriList as $kat): ?>
-                                <option value="<?= htmlspecialchars($kat['kategori']) ?>" 
-                                        <?= $kategori === $kat['kategori'] ? 'selected' : '' ?>>
+                                <option value="<?= htmlspecialchars($kat['id_kategori']) ?>" 
+                                        <?= $kategori === $kat['id_kategori'] ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($kat['kategori']) ?>
                                 </option>
                             <?php endforeach; ?>
@@ -72,7 +72,7 @@ include __DIR__ . '/../../layouts/header.php';
                     <div class="card" style="overflow: hidden;">
                         <div style="height: 200px; background: linear-gradient(135deg, var(--light-color), #e3f2fd); display: flex; align-items: center; justify-content: center;">
                             <?php if ($alat['gambar']): ?>
-                                <img src="/hakikah/public/images/alat/<?= htmlspecialchars($alat['gambar']) ?>" 
+                                <img src="/hakikah/public/uploads/alat/<?= htmlspecialchars($alat['gambar']) ?>" 
                                      alt="<?= htmlspecialchars($alat['nama_alat']) ?>"
                                      style="max-width: 100%; max-height: 100%; object-fit: cover;">
                             <?php else: ?>
